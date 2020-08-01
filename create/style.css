@@ -1,0 +1,54 @@
+#controlPanel {
+	/* height: 100%; */
+	padding: 1em;
+}
+
+#stripLength {
+	width: 50%;
+}
+
+#stripLengthNum {
+	width: 3ch;
+	text-align: center;
+}
+
+#stripsContainer {
+	/* height: 100%; */
+	display: flex;
+	/* justify-content: center; */
+	flex-direction: column;
+}
+
+#selectBox {
+	box-sizing: border-box;
+	border: 1px solid mediumblue;
+	background-color: royalblue;
+	position: absolute;
+	z-index: 999;
+	opacity: 0.6;
+}
+
+.selectedNode {
+	outline: 2px solid blue;
+}
+
+/* thanks w3schools */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+input[type="number"] {
+	-moz-appearance: textfield;
+}
+
+/* thanks stackoverflow */
+.noselect {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Old versions of Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
