@@ -105,7 +105,7 @@ class RGBStrip {
 			}
 		}
 
-		if (this.animated && this.length != numLength) {
+		if (this.animated && curLength != numLength) {
 			let temp = new Array(dif).fill([0, 0, 0]);
 			let frames = this.frames;
 

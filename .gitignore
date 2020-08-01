@@ -1,1 +1,6 @@
+.vscode
+launch.json
+.eslintrc.js
+package.json
+pfp.png
 *.env

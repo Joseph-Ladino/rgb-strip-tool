@@ -24,8 +24,8 @@ function updateSelectionBox() {
 
 	elSelectBox.style.left = `${width < 0 ? vecSelectE.x : vecSelectS.x}px`;
 	elSelectBox.style.top = `${height < 0 ? vecSelectE.y : vecSelectS.y}px`;
-	elSelectBox.style.width = `${Math.abs(vecSelectE.x - vecSelectS.x)}px`;
-	elSelectBox.style.height = `${Math.abs(vecSelectE.y - vecSelectS.y)}px`;
+	elSelectBox.style.width = `${Math.abs(width)}px`;
+	elSelectBox.style.height = `${Math.abs(height)}px`;
 }
 
 // returns element's corners in an object as x and y pairs
