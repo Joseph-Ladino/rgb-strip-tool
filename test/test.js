@@ -9,8 +9,19 @@ async function loadAndInit() {
 function handleStyle() {
 	try {
 		let s = json[json.selected];
-		strip = new RGBStrip(document.getElementsByClassName("strip")[0], s.length, s.colors, s.fill, s.animate, s.frames, s.frameDelay);
-		
+		strip = new RGBStrip(
+			document.getElementsByClassName("strip")[0],
+			s.length
+		);
+
+		if (s.animated) {
+			strip.updateFrames(s.frames);
+			strip.frameDelay = s.frameDelay;
+			strip.startAnimation();
+		} else {
+			if (s.fill) strip.fillColor(s.colors[0]);
+			else strip.setStrip(s.colors);
+		}
 	} catch (e) {
 		console.log(e);
 	}

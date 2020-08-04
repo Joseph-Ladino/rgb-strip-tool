@@ -1,32 +1,20 @@
 {
-    "selected": "idle",
-    "offline": {
-        "length": 100,
-        "animate": false,
-        "fill": true,
-        "colors": [[125, 0, 200]]
-    },
-    "idle": {
-        "animate": true,
-        "transition": false,
-        "length": 3,
-        "frames": [
-            [
-                [220, 217, 37],
-                [231, 229, 103],
-                [236, 233, 31]
-            ],
-            [
-                [236, 233, 31],
-                [220, 217, 37],
-                [231, 229, 103]
-            ], 
-            [
-                [231, 229, 103],
-                [236, 233, 31],
-                [220, 217, 37]
-            ]
-        ],
-        "frameDelay": 150
-    }
+	"selected": "offline",
+	"offline": {
+		"length": 9,
+		"animated": false,
+		"fill": true,
+		"colors": ["#7d00c8"]
+	},
+	"idle": {
+		"animated": true,
+		"transition": false,
+		"length": 3,
+		"frames": [
+			["#dcd925", "#e7e567", "#ece91f"],
+			["#ece91f", "#dcd925", "#e7e567"],
+			["#e7e567", "#ece91f", "#dcd925"]
+		],
+		"frameDelay": 150
+	}
 }

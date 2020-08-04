@@ -79,6 +79,28 @@ function updateSelectedArray(strip) {
 	arrSelectedNodes = temp;
 }
 
+function lerp(nStart, nEnd, fPos) {
+	return (1 - fPos) * nStart + fPos * nEnd;
+}
+
+function rgbLerp(arrColor1, arrColor2, fPos) {
+	return [
+		Math.round(lerp(arrColor1[0], arrColor2[0], fPos)),
+		Math.round(lerp(arrColor1[1], arrColor2[1], fPos)),
+		Math.round(lerp(arrColor1[2], arrColor2[2], fPos)),
+	];
+}
+
+function createGradient(arrColor1, arrColor2, numNodesBetween) {
+	let total = numNodesBetween + 2;
+	let out = [];
+
+	for(let i = 0; i <= numNodesBetween + 1; i++)
+		out.push(rgbLerp(arrColor1, arrColor2, i / (numNodesBetween + 1)));
+
+	return out;
+}
+
 async function loadAndInit() {
 	json = await (await fetch("../teststyle.json")).json();
 	RGBStrip = (await import("../strip.js")).RGBStrip;
@@ -115,11 +137,11 @@ async function loadAndInit() {
 		boolSelecting = false;
 		elSelectBox.style.display = "none";
 	});
-	
+
 	document.addEventListener("mousemove", (e) => {
 		if (boolMouseDown) {
 			boolSelecting = true;
-			
+
 			elSelectBox.style.display = "block";
 			vecSelectE.x = e.pageX;
 			vecSelectE.y = e.pageY;

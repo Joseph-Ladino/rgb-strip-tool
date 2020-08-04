@@ -1,29 +1,16 @@
 /* eslint-disable no-unused-vars */
 
 class RGBStrip {
-	constructor(
-		elStrip,
-		numInitialLength = 0,
-		arrColors = [],
-		boolFill = false,
-		boolAnimated = false,
-		arrFrames = [],
-		numFrameDelay = 50
-	) {
+	constructor(elStrip, numInitialLength = 0) {
 		this.strip = elStrip;
-		this.animated = boolAnimated;
-		this.frames = arrFrames;
-		this.frameDelay = numFrameDelay;
+		this.animated = false;
+		this.frames = [];
+		this.frameDelay = 250;
 
 		this.frameHandle = 0;
 		this.frameIndex = 0;
 
 		this.resize(numInitialLength);
-
-		if (arrColors.length > 0)
-			if (boolFill) this.fillColor(arrColors[0]);
-			else this.setStrip(arrColors);
-		else if (this.animated) this.startAnimation();
 	}
 
 	get nodes() {
@@ -36,10 +23,7 @@ class RGBStrip {
 
 	get colors() {
 		let nodes = this.nodes;
-		return nodes.reduce(
-			(acc, val) => acc.concat([this.fromHex(val.value)]),
-			[]
-		);
+		return nodes.reduce((acc, val) => acc.concat([val.value]), []);
 	}
 
 	toHex(arrColor) {
@@ -65,11 +49,11 @@ class RGBStrip {
 	fillColor(arrColor) {
 		let nodes = this.nodes;
 
-		for (let node of nodes) node.value = this.toHex(arrColor);
+		for (let node of nodes) node.value = arrColor;
 	}
 
 	setNode(numNode, arrColor) {
-		this.nodes[numNode].value = this.toHex(arrColor);
+		this.nodes[numNode].value = arrColor;
 	}
 
 	setStrip(arrColors) {
@@ -80,12 +64,12 @@ class RGBStrip {
 			return;
 		}
 
-		for (let i in nodes) nodes[i].value = this.toHex(arrColors[i]);
+		for (let i in nodes) nodes[i].value = arrColors[i];
 	}
 
 	resize(numLength) {
-		if(numLength < 1){
-			console.log("can't resize to less than 1 node");	
+		if (numLength < 1) {
+			console.log("can't resize to less than 1 node");
 			return;
 		}
 
@@ -106,7 +90,7 @@ class RGBStrip {
 		}
 
 		if (this.animated && curLength != numLength) {
-			let temp = new Array(dif).fill([0, 0, 0]);
+			let temp = new Array(dif).fill("#000000");
 			let frames = this.frames;
 
 			frames = add
