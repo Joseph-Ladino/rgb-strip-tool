@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
-let json, RGBStrip, strip;
+let json, strip;
 async function loadAndInit() {
 	json = await (await fetch("../teststyle.json")).json();
-	RGBStrip = (await import("../strip.js")).RGBStrip;
 	handleStyle();
 }
 

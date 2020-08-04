@@ -156,4 +156,4 @@ class RGBStrip {
 	}
 }
 
-export { RGBStrip };
+// export { RGBStrip };
