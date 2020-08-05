@@ -16,28 +16,6 @@ function switchTool(newTool) {
 	activeTool.setup(arrStrips);
 }
 
-function lerp(nStart, nEnd, fPos) {
-	return (1 - fPos) * nStart + fPos * nEnd;
-}
-
-function rgbLerp(arrColor1, arrColor2, fPos) {
-	return [
-		Math.round(lerp(arrColor1[0], arrColor2[0], fPos)),
-		Math.round(lerp(arrColor1[1], arrColor2[1], fPos)),
-		Math.round(lerp(arrColor1[2], arrColor2[2], fPos)),
-	];
-}
-
-function createGradient(arrColor1, arrColor2, numNodesBetween) {
-	let total = numNodesBetween + 1;
-	let out = [];
-
-	for (let i = 0; i <= total; i++)
-		out.push(rgbLerp(arrColor1, arrColor2, i / total));
-
-	return out;
-}
-
 async function loadAndInit() {
 	json = await (await fetch("../teststyle.json")).json();
 
@@ -71,21 +49,21 @@ async function loadAndInit() {
 		});
 	}
 
-	document.addEventListener("keyup", e => {
+	document.addEventListener("keyup", (e) => {
 		let next = null;
-		switch(e.key) {
-			case '1':
-			case 's':
+		switch (e.key) {
+			case "1":
+			case "s":
 				next = 0;
 				break;
 
-			case '2':
-			case 'g':
+			case "2":
+			case "g":
 				next = 1;
 				break;
-		};
+		}
 
-		if(next !== null) {
+		if (next !== null) {
 			document.getElementById(`tool${next}`).checked = true;
 			switchTool(tools[next]);
 		}

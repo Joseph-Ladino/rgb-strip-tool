@@ -26,26 +26,6 @@ class RGBStrip {
 		return nodes.reduce((acc, val) => acc.concat([val.value]), []);
 	}
 
-	toHex(arrColor) {
-		let out = [];
-		for (let i of arrColor) {
-			let seg = i.toString(16);
-
-			if (seg.length == 1) seg = `0${seg}`;
-
-			out.push(seg);
-		}
-		return `#${out.join("")}`;
-	}
-
-	fromHex(strHex) {
-		return [
-			parseInt(strHex.substr(1, 2), 16),
-			parseInt(strHex.substr(3, 2), 16),
-			parseInt(strHex.substr(5, 2), 16),
-		];
-	}
-
 	fillColor(arrColor) {
 		let nodes = this.nodes;
 

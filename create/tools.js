@@ -1,3 +1,23 @@
+function toHex(arrColor) {
+	let out = [];
+	for (let i of arrColor) {
+		let seg = i.toString(16);
+
+		if (seg.length == 1) seg = `0${seg}`;
+
+		out.push(seg);
+	}
+	return `#${out.join("")}`;
+}
+
+function fromHex(strHex) {
+	return [
+		parseInt(strHex.substr(1, 2), 16),
+		parseInt(strHex.substr(3, 2), 16),
+		parseInt(strHex.substr(5, 2), 16),
+	];
+}
+
 class Tool {
 	constructor() {}
 	setup() {}
@@ -7,13 +27,13 @@ class Tool {
 class SelectionTool extends Tool {
 	constructor() {
 		super();
-        this.el = document.getElementById("selectBox");
-        this.selectedNodes = [];
+		this.el = document.getElementById("selectBox");
+		this.selectedNodes = [];
 		this.vecSelectS = { x: 0, y: 0 };
 		this.vecSelectE = { x: 0, y: 0 };
 		this.boolMouseDown = false;
 
-        // event handlers have to be here to be removable while preserving scope; 
+		// event handlers have to be here to be removable while preserving scope;
 		this.mousedown = (e) => {
 			this.vecSelectS.x = e.pageX;
 			this.vecSelectS.y = e.pageY;
@@ -27,12 +47,12 @@ class SelectionTool extends Tool {
 
 		this.mousemove = (e) => {
 			if (this.boolMouseDown) {
-                this.el.style.display = "block";
-                
+				this.el.style.display = "block";
+
 				this.vecSelectE.x = e.pageX;
 				this.vecSelectE.y = e.pageY;
-                
-                this.updateSelectionBox();
+
+				this.updateSelectionBox();
 				this.updateSelectedArray(this.strips[0]);
 			}
 		};
@@ -122,18 +142,80 @@ class SelectionTool extends Tool {
 }
 
 class GradientTool extends Tool {
-    constructor() {
-        super();
-        console.log("constructed");
-    }
+	constructor() {
+		super();
+		this.anchors = [];
 
-    setup() {
-        console.log("set up")
-    }
+		this.nodeListener = (e) => {
+			if (this.anchors.indexOf(e.target) == -1) {
+				this.anchors.push(e.target);
+				this.anchors.sort(
+					(a, b) =>
+						this.selected.indexOf(a) - this.selected.indexOf(b)
+				);
+			}
+		};
 
-    cleanup() {
-        console.log("clean up")
-    }
+		this.updateListener = (e) => {
+			let length = this.anchors.length;
+			if (length >= 2) {
+				for (let i = 1; i < length; i++) {
+					let node1 = this.anchors[i - 1];
+					let node2 = this.anchors[i];
+					let baseIndex = this.selected.indexOf(node1);
+					let gradient = this.createGradient(
+						fromHex(node1.value),
+						fromHex(node2.value),
+						this.selected.indexOf(node2) - baseIndex - 1
+					);
+
+					for (let i = 0; i < gradient.length; i++)
+						this.selected[baseIndex + i].value = toHex(gradient[i]);
+				}
+			}
+		};
+	}
+
+	lerp(nStart, nEnd, fPos) {
+		return (1 - fPos) * nStart + fPos * nEnd;
+	}
+
+	rgbLerp(arrColor1, arrColor2, fPos) {
+		return [
+			Math.round(this.lerp(arrColor1[0], arrColor2[0], fPos)),
+			Math.round(this.lerp(arrColor1[1], arrColor2[1], fPos)),
+			Math.round(this.lerp(arrColor1[2], arrColor2[2], fPos)),
+		];
+	}
+
+	createGradient(arrColor1, arrColor2, numNodesBetween) {
+		let total = numNodesBetween + 1;
+		let out = [];
+
+		for (let i = 0; i <= total; i++)
+			out.push(this.rgbLerp(arrColor1, arrColor2, i / total));
+
+		return out;
+	}
+
+	setup(arrStrips) {
+		this.strips = arrStrips;
+		this.selected = selectTool.selectedNodes;
+
+		for (let i of this.selected) {
+			i.addEventListener("mousedown", this.nodeListener);
+			i.addEventListener("input", this.updateListener);
+		}
+	}
+
+	cleanup() {
+		this.anchors = [];
+
+		for (let i of this.selected) {
+			i.removeEventListener("mousedown", this.nodeListener);
+			i.removeEventListener("input", this.updateListener);
+		}
+	}
 }
 
 let selectTool = new SelectionTool();
