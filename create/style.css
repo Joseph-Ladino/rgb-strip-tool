@@ -1,5 +1,9 @@
+body {
+	display: flex;
+	flex-direction: column;
+}
+
 #controlPanel {
-	/* height: 100%; */
 	padding: 1em;
 }
 
@@ -7,16 +11,20 @@
 	width: 50%;
 }
 
-#stripLengthNum {
+.number3ch {
 	width: 3ch;
 	text-align: center;
 }
 
 #stripsContainer {
-	/* height: 100%; */
+	flex: 1 1 auto;
 	display: flex;
-	/* justify-content: center; */
 	flex-direction: column;
+}
+
+.activeStrip {
+	border-color: mediumblue;
+	border-style: dashed;
 }
 
 #selectBox {

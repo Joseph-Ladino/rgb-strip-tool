@@ -1,7 +1,5 @@
 body {
     margin: 0;
-    /* display: flex;
-    flex-direction: column; */
     height: 100vh;
 }
 
@@ -10,7 +8,7 @@ body {
 	height: fit-content;
 	box-sizing: border-box;
     padding: 1em;
-    margin: 0 auto;
+    margin: 10px auto 0px;
 	border: 2px solid black;
 	display: flex;
 	flex-direction: row;

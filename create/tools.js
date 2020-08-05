@@ -18,9 +18,12 @@ function fromHex(strHex) {
 	];
 }
 
+var container = document.getElementById("stripsContainer");
+
 class Tool {
 	constructor() {}
 	setup() {}
+	resize() {}
 	cleanup() {}
 }
 
@@ -28,7 +31,7 @@ class SelectionTool extends Tool {
 	constructor() {
 		super();
 		this.el = document.getElementById("selectBox");
-		this.selectedNodes = [];
+		this.selected = [];
 		this.vecSelectS = { x: 0, y: 0 };
 		this.vecSelectE = { x: 0, y: 0 };
 		this.boolMouseDown = false;
@@ -53,7 +56,7 @@ class SelectionTool extends Tool {
 				this.vecSelectE.y = e.pageY;
 
 				this.updateSelectionBox();
-				this.updateSelectedArray(this.strips[0]);
+				this.updateSelectedArray(activeStrip);
 			}
 		};
 	}
@@ -112,7 +115,7 @@ class SelectionTool extends Tool {
 
 	// checks strip for selected nodes
 	updateSelectedArray(strip) {
-		for (let n of this.selectedNodes) n.classList.remove("selectedNode");
+		for (let n of this.selected) n.classList.remove("selectedNode");
 
 		let temp = [];
 		let nodes = strip.nodes;
@@ -124,7 +127,24 @@ class SelectionTool extends Tool {
 			}
 		}
 
-		this.selectedNodes = temp;
+		this.selected = temp;
+	}
+
+	/* reminder: implement after seperating frames */
+
+	// toggleSelected(elNode) {
+	// 	if(elNode.classList.contains("nodeSelected")) {
+	// 		this.selected.splice(this.selected.indexOf(elNode));
+	// 		elNode.classList.remove("nodeSelected");
+	// 	} else {
+	// 		elNode.classList.add("nodeSelected");
+	// 		let parent = elNode.parentElement;
+	// 	}
+	// }
+		
+	clearSelection() {
+		for (let n of this.selected) n.classList.remove("selectedNode");
+		this.selected = [];
 	}
 
 	setup(arrStrips) {
@@ -132,6 +152,13 @@ class SelectionTool extends Tool {
 		document.addEventListener("mousedown", this.mousedown);
 		document.addEventListener("mouseup", this.mouseup);
 		document.addEventListener("mousemove", this.mousemove);
+	}
+
+	resize(boolShrinking) {
+		if (boolShrinking)
+			for (let i in this.selected)
+				if (!document.contains(this.selected[i]))
+					this.selected.splice(i);
 	}
 
 	cleanup() {
@@ -156,6 +183,7 @@ class GradientTool extends Tool {
 			}
 		};
 
+		// creates and sets gradients between all anchor nodes
 		this.updateListener = (e) => {
 			let length = this.anchors.length;
 			if (length >= 2) {
@@ -182,9 +210,9 @@ class GradientTool extends Tool {
 
 	rgbLerp(arrColor1, arrColor2, fPos) {
 		return [
-			Math.round(this.lerp(arrColor1[0], arrColor2[0], fPos)),
-			Math.round(this.lerp(arrColor1[1], arrColor2[1], fPos)),
-			Math.round(this.lerp(arrColor1[2], arrColor2[2], fPos)),
+			Math.floor(this.lerp(arrColor1[0], arrColor2[0], fPos)),
+			Math.floor(this.lerp(arrColor1[1], arrColor2[1], fPos)),
+			Math.floor(this.lerp(arrColor1[2], arrColor2[2], fPos)),
 		];
 	}
 
@@ -200,11 +228,21 @@ class GradientTool extends Tool {
 
 	setup(arrStrips) {
 		this.strips = arrStrips;
-		this.selected = selectTool.selectedNodes;
+		this.selected = selectTool.selected;
 
 		for (let i of this.selected) {
 			i.addEventListener("mousedown", this.nodeListener);
 			i.addEventListener("input", this.updateListener);
+		}
+	}
+
+	resize(boolShrinking) {
+		if (boolShrinking) {
+			selectTool.resize(true);
+			this.selected = selectTool.selected;
+
+			for (let i in this.anchors)
+				if (!document.contains(this.anchors[i])) this.anchors.splice(i);
 		}
 	}
 

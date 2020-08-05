@@ -48,11 +48,6 @@ class RGBStrip {
 	}
 
 	resize(numLength) {
-		if (numLength < 1) {
-			console.log("can't resize to less than 1 node");
-			return;
-		}
-
 		let curLength = this.length;
 		let add = numLength > curLength;
 		let dif = Math.abs(numLength - curLength);
