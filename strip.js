@@ -4,12 +4,11 @@ class RGBStrip {
 	constructor(elStrip, numInitialLength = 0) {
 		this.strip = elStrip;
 		this.animated = false;
+		this.disabled = false;
 		this.frames = [];
 		this.frameDelay = 250;
-
 		this.frameHandle = 0;
 		this.frameIndex = 0;
-
 		this.resize(numInitialLength);
 	}
 
@@ -24,6 +23,17 @@ class RGBStrip {
 	get colors() {
 		let nodes = this.nodes;
 		return nodes.reduce((acc, val) => acc.concat([val.value]), []);
+	}
+
+	toggleDisabled() {
+		if (this.disabled) {
+			this.strip.removeChild(this.strip.querySelector(".disabledShield"));
+		} else {
+			let temp = document.createElement("div");
+			temp.classList.add("disabledShield");
+			this.strip.prepend(temp);
+		}
+		this.disabled = !this.disabled;
 	}
 
 	fillColor(arrColor) {
@@ -68,9 +78,7 @@ class RGBStrip {
 			let temp = new Array(dif).fill("#000000");
 			let frames = this.frames;
 
-			frames = add
-				? frames.map((val) => val.concat(temp))
-				: frames.map((val) => val.slice(0, numLength));
+			frames = add ? frames.map((val) => val.concat(temp)) : frames.map((val) => val.slice(0, numLength));
 
 			this.updateFrames(frames);
 		}
@@ -101,10 +109,7 @@ class RGBStrip {
 	startAnimation() {
 		this.setStrip(this.frames[0]);
 		this.frameIndex = 1;
-		this.frameHandle = setInterval(
-			(_) => this.nextFrame(),
-			this.frameDelay
-		);
+		this.frameHandle = setInterval((_) => this.nextFrame(), this.frameDelay);
 	}
 
 	stopAnimation() {

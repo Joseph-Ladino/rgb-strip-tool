@@ -11,11 +11,7 @@ function toHex(arrColor) {
 }
 
 function fromHex(strHex) {
-	return [
-		parseInt(strHex.substr(1, 2), 16),
-		parseInt(strHex.substr(3, 2), 16),
-		parseInt(strHex.substr(5, 2), 16),
-	];
+	return [parseInt(strHex.substr(1, 2), 16), parseInt(strHex.substr(3, 2), 16), parseInt(strHex.substr(5, 2), 16)];
 }
 
 var container = document.getElementById("stripsContainer");
@@ -66,13 +62,9 @@ class SelectionTool extends Tool {
 		let width = this.vecSelectE.x - this.vecSelectS.x;
 		let height = this.vecSelectE.y - this.vecSelectS.y;
 
-		this.el.style.left = `${
-			width < 0 ? this.vecSelectE.x : this.vecSelectS.x
-		}px`;
+		this.el.style.left = `${width < 0 ? this.vecSelectE.x : this.vecSelectS.x}px`;
 
-		this.el.style.top = `${
-			height < 0 ? this.vecSelectE.y : this.vecSelectS.y
-		}px`;
+		this.el.style.top = `${height < 0 ? this.vecSelectE.y : this.vecSelectS.y}px`;
 
 		this.el.style.width = `${Math.abs(width)}px`;
 		this.el.style.height = `${Math.abs(height)}px`;
@@ -82,20 +74,20 @@ class SelectionTool extends Tool {
 	grabElementCorners(el) {
 		return {
 			tl: {
-				x: el.offsetLeft,
-				y: el.offsetTop,
+				x: el.offsetLeft + el.offsetParent.offsetLeft,
+				y: el.offsetTop + el.offsetParent.offsetTop,
 			},
 			tr: {
-				x: el.offsetLeft + el.offsetWidth,
-				y: el.offsetTop,
+				x: el.offsetLeft + el.offsetWidth + el.offsetParent.offsetLeft,
+				y: el.offsetTop + el.offsetParent.offsetTop,
 			},
 			br: {
-				x: el.offsetLeft + el.offsetWidth,
-				y: el.offsetTop + el.offsetHeight,
+				x: el.offsetLeft + el.offsetWidth + el.offsetParent.offsetLeft,
+				y: el.offsetTop + el.offsetHeight + el.offsetParent.offsetTop,
 			},
 			bl: {
-				x: el.offsetLeft,
-				y: el.offsetTop + el.offsetHeight,
+				x: el.offsetLeft + el.offsetParent.offsetLeft,
+				y: el.offsetTop + el.offsetHeight + el.offsetParent.offsetTop,
 			},
 		};
 	}
@@ -105,12 +97,7 @@ class SelectionTool extends Tool {
 		let b = this.grabElementCorners(this.el);
 		let n = this.grabElementCorners(elNode);
 
-		return !(
-			n.br.x < b.tl.x ||
-			b.br.x < n.tl.x ||
-			n.br.y < b.tl.y ||
-			b.br.y < n.tl.y
-		);
+		return !(n.br.x < b.tl.x || b.br.x < n.tl.x || n.br.y < b.tl.y || b.br.y < n.tl.y);
 	}
 
 	// checks strip for selected nodes
@@ -141,7 +128,7 @@ class SelectionTool extends Tool {
 	// 		let parent = elNode.parentElement;
 	// 	}
 	// }
-		
+
 	clearSelection() {
 		for (let n of this.selected) n.classList.remove("selectedNode");
 		this.selected = [];
@@ -155,10 +142,7 @@ class SelectionTool extends Tool {
 	}
 
 	resize(boolShrinking) {
-		if (boolShrinking)
-			for (let i in this.selected)
-				if (!document.contains(this.selected[i]))
-					this.selected.splice(i);
+		if (boolShrinking) for (let i in this.selected) if (!document.contains(this.selected[i])) this.selected.splice(i);
 	}
 
 	cleanup() {
@@ -176,10 +160,7 @@ class GradientTool extends Tool {
 		this.nodeListener = (e) => {
 			if (this.anchors.indexOf(e.target) == -1) {
 				this.anchors.push(e.target);
-				this.anchors.sort(
-					(a, b) =>
-						this.selected.indexOf(a) - this.selected.indexOf(b)
-				);
+				this.anchors.sort((a, b) => this.selected.indexOf(a) - this.selected.indexOf(b));
 			}
 		};
 
@@ -191,14 +172,9 @@ class GradientTool extends Tool {
 					let node1 = this.anchors[i - 1];
 					let node2 = this.anchors[i];
 					let baseIndex = this.selected.indexOf(node1);
-					let gradient = this.createGradient(
-						fromHex(node1.value),
-						fromHex(node2.value),
-						this.selected.indexOf(node2) - baseIndex - 1
-					);
+					let gradient = this.createGradient(fromHex(node1.value), fromHex(node2.value), this.selected.indexOf(node2) - baseIndex - 1);
 
-					for (let i = 0; i < gradient.length; i++)
-						this.selected[baseIndex + i].value = toHex(gradient[i]);
+					for (let i = 0; i < gradient.length; i++) this.selected[baseIndex + i].value = toHex(gradient[i]);
 				}
 			}
 		};
@@ -220,8 +196,7 @@ class GradientTool extends Tool {
 		let total = numNodesBetween + 1;
 		let out = [];
 
-		for (let i = 0; i <= total; i++)
-			out.push(this.rgbLerp(arrColor1, arrColor2, i / total));
+		for (let i = 0; i <= total; i++) out.push(this.rgbLerp(arrColor1, arrColor2, i / total));
 
 		return out;
 	}
@@ -241,8 +216,7 @@ class GradientTool extends Tool {
 			selectTool.resize(true);
 			this.selected = selectTool.selected;
 
-			for (let i in this.anchors)
-				if (!document.contains(this.anchors[i])) this.anchors.splice(i);
+			for (let i in this.anchors) if (!document.contains(this.anchors[i])) this.anchors.splice(i);
 		}
 	}
 

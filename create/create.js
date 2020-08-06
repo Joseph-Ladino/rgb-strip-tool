@@ -48,7 +48,7 @@ async function loadAndInit() {
 	});
 
 	elLengthNum.addEventListener("input", (_) => {
-		elLengthNum.value = constrain(elLengthNum.value, 0, 148);
+		elLengthNum.value = constrain(elLengthNum.value, 1, 148);
 
 		elLength.value = elLengthNum.value;
 
