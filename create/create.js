@@ -1,10 +1,10 @@
-/* globals selectTool gradientTool RGBStrip container */
-/* exported selectTool gradientTool RGBStrip container */
+/* globals selectTool gradientTool fillTool RGBStrip container */
+/* exported selectTool gradientTool fillTool RGBStrip container */
 
 // global vars
 var json;
 var arrStrips = [];
-var tools = [selectTool, gradientTool];
+var tools = [selectTool, gradientTool, fillTool];
 var activeTool = selectTool;
 var activeStrip;
 var displayStrip;
@@ -42,6 +42,7 @@ function resizeStrips(numLength) {
 
 // add and remove strips/frames
 function resizeFrames(numLength) {
+	elFrameCount.value = numLength;
 	let frameCount = numLength;
 	let add = frameCount > arrStrips.length;
 	let dif = Math.abs(frameCount - arrStrips.length);
@@ -73,6 +74,7 @@ function resizeFrames(numLength) {
 
 function keyupHandler(e) {
 	if (e.target.localName != "input") {
+		e.preventDefault();
 		let next = null;
 		switch (e.key) {
 			case "1":
@@ -82,6 +84,16 @@ function keyupHandler(e) {
 			case "2":
 			case "g":
 				next = 1;
+				break;
+			case "3":
+			case "f":
+				next = 2;
+				break;
+			case "q":
+				activeStrip.setStrip(activeStrip.cycleFrame(activeStrip.colors, false));
+				break;
+			case "e":
+				activeStrip.setStrip(activeStrip.cycleFrame(activeStrip.colors, true));
 				break;
 			case "=":
 				elFrameDelay.value = Number(elFrameDelay.value) + 10;
@@ -147,7 +159,7 @@ async function loadAndInit() {
 	let elTools = Array.from(document.getElementsByName("tool"));
 	for (let i of elTools) {
 		i.addEventListener("change", (e) => {
-			if (e.target.checked) switchTool(tools[e.target.value]);
+			if (e.target.checked) switchTool(tools[elTools.indexOf(e.target)]);
 		});
 	}
 

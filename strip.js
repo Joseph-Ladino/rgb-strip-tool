@@ -91,13 +91,23 @@ class RGBStrip {
 		this.stripModified();
 	}
 
+	cycleFrame(arrFrame, boolClockwise = true) {
+		let temp = Array.from(arrFrame);
+		
+		console.log(arrFrame, temp)
+		if (boolClockwise) temp.unshift(temp.pop());
+		else temp.push(temp.shift());
+		console.log(arrFrame, temp)
+		return Array.from(temp);
+	}
+
 	// creates a cycle of frames from one frame, e.g. RGB -> RGB, GBR, BRG
 	lazyAnimate(arrFrame, numDelay) {
 		this.animated = true;
 
 		let frames = [];
 		let length = arrFrame.length;
-		let temp = arrFrame;
+		let temp = Array.from(arrFrame);
 
 		for (let i = 0; i < length; i++) {
 			temp.unshift(temp.pop());

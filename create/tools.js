@@ -18,10 +18,12 @@ var container = document.getElementById("stripsContainer");
 
 class Tool {
 	constructor() {}
-	setup() {}
-	resize() {}
+	setup(strip) {}
+	resize(boolShrinking) {}
 	cleanup() {}
-	switchStrip(strip) {this.strip = strip;}
+	switchStrip(strip) {
+		this.strip = strip;
+	}
 }
 
 class SelectionTool extends Tool {
@@ -67,10 +69,10 @@ class SelectionTool extends Tool {
 
 		this.keyup = (e) => {
 			switch (e.key) {
-				case "Delete":
+				case "Backspace":
 					this.clearSelection();
 					break;
-				case "Backspace":
+				case "Delete":
 					this.strip.fillColor("#000000");
 					break;
 				case "a":
@@ -280,5 +282,34 @@ class GradientTool extends Tool {
 	}
 }
 
+class FillTool extends Tool {
+	constructor() {
+		super();
+		this.length = 0;
+
+		this.nodeChange = (e) => {
+			this.strip.fillColor(e.target.value);
+		};
+	}
+
+	setup(strip) {
+		this.strip = strip;
+		this.length = this.strip.length;
+
+		for (let i of this.strip.nodes) i.addEventListener("input", this.nodeChange);
+	}
+
+	resize(boolShrinking) {
+		if(!boolShrinking) {
+			for(let i = this.length; i < this.strip.length; i++) 
+				this.strip.nodes[i].addEventListener("input", this.nodeChange);
+			this.length = this.strip.length;
+		}
+	}
+
+	cleanup() {}
+}
+
 let selectTool = new SelectionTool();
 let gradientTool = new GradientTool();
+let fillTool = new FillTool();
