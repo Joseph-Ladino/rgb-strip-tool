@@ -11,4 +11,4 @@ Good luck. I plan to make it more universal/customizable, but for now it's tailo
 :D
 
 # Demo/Concept
-![video demo](demo.gif)(https://youtu.be/8SrrIvpJhQ4)
+[![video demo](demo.gif)](https://youtu.be/8SrrIvpJhQ4)
