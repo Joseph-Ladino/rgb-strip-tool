@@ -1,43 +1,41 @@
 <!DOCTYPE html>
 <html>
 	<head>
-        <title>rgb strip color create</title>
-        <link href="../strip.css" rel="stylesheet" type="text/css" />
-        <link href="./style.css" rel="stylesheet" type="text/css" />
+		<title>rgb strip color create</title>
+		<link href="../strip.css" rel="stylesheet" type="text/css" />
+		<link href="./style.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
-        <div id="selectBox" style="display: none"></div>
-        <div id="controlPanel" class="noselect">
-            <input id="stripLength" type="range" min="1" max="148" value="5" />
-            <input id="stripLengthNum" class="number3ch" type="number" min="1" max="148" value="5" />
-            <label for="stripLength">nodes</label>
-            
-            <br /> 
+		<div id="selectBox" style="display: none;"></div>
+		<div id="controlPanel" class="noselect">
+			<input id="stripLength" class="number3ch" type="number" min="1" max="148" value="5" />
+			<label for="stripLength">node(s)</label>
+			<input id="frameCount" class="number3ch" type="number" value="1" />
+			<label for="frameCount">frame(s)</label>
+			<input id="frameDelay" class="number3ch" type="number" value="100" min="1" />
+			<label for="frameDelay">millisecond(s)</label>
 
-            <input id="frameCount" class="number3ch" type="number" value="1" />
-            <label for="frameCount">frame(s)</label>
-            <input id="frameDelay" class="number3ch" type="number" value="1" min="1" />
-            <label for="frameDelay">millisecond(s)</label>
+			<br />
 
-            <br />
+			<label for="toolBox">Tools:</label>
+			<div id="toolBox">
+				<input id="tool0" type="radio" name="tool" value="0" checked />
+				<label for="tool0">Select</label>
+				<input id="tool1" type="radio" name="tool" value="1" />
+				<label for="tool1">Gradient</label>
+			</div>
 
-            <label for="toolBox">Tools:</label>
-            <div id="toolBox">
-                <input id="tool0" type="radio" name="tool" value="0" checked />
-                <label for="tool0">Select</label>
-                <input id="tool1" type="radio" name="tool" value="1" />
-                <label for="tool1">Gradient</label>
-            </div>
-
-            <!-- <input type="checkbox" id="animatebox" />
+			<!-- <input type="checkbox" id="animatebox" />
             <label for="animatebox">Animate ?</label> -->
-        </div>
+		</div>
 
-        <div id="stripsContainer">    
-            <div class="strip activeStrip"></div>
-        </div>
-        <script src="../strip.js" type="text/javascript"></script>
-        <script src="./tools.js" type="text/javascript"></script>
-        <script src="./create.js" type="text/javascript"></script>
+		<div id="stripsContainer">
+			<div id="displayStrip" class="strip"></div>
+			<hr />
+			<div class="strip activeStrip"></div>
+		</div>
+		<script src="../strip.js" type="text/javascript"></script>
+		<script src="./tools.js" type="text/javascript"></script>
+		<script src="./create.js" type="text/javascript"></script>
 	</body>
 </html>

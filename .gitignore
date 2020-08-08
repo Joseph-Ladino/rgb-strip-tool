@@ -1,6 +1,8 @@
 .vscode
 launch.json
-.eslintrc.js
+.eslintrc.json
+package-lock.json
 package.json
 pfp.png
 *.env
+node_modules/

@@ -3,12 +3,13 @@ body {
 	flex-direction: column;
 }
 
-#controlPanel {
-	padding: 1em;
+hr {
+	width: 100%;
+	margin-bottom: 0;
 }
 
-#stripLength {
-	width: 50%;
+#controlPanel {
+	padding: 1em;
 }
 
 .number3ch {
@@ -20,6 +21,8 @@ body {
 	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
+	width: fit-content;
+	margin: auto;
 }
 
 .activeStrip {
@@ -38,6 +41,10 @@ body {
 
 .selectedNode {
 	outline: 2px solid blue;
+}
+
+.nodeAnchor {
+	outline-color: red;
 }
 
 /* thanks w3schools */

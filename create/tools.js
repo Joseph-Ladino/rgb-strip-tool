@@ -21,6 +21,7 @@ class Tool {
 	setup() {}
 	resize() {}
 	cleanup() {}
+	switchStrip(strip) {this.strip = strip;}
 }
 
 class SelectionTool extends Tool {
@@ -31,28 +32,54 @@ class SelectionTool extends Tool {
 		this.vecSelectS = { x: 0, y: 0 };
 		this.vecSelectE = { x: 0, y: 0 };
 		this.boolMouseDown = false;
+		this.boolSelecting = false;
 
 		// event handlers have to be here to be removable while preserving scope;
 		this.mousedown = (e) => {
 			this.vecSelectS.x = e.pageX;
 			this.vecSelectS.y = e.pageY;
 			this.boolMouseDown = true;
+
+			if ((e.ctrlKey || e.altKey) && e.target.classList.contains("node")) {
+				e.preventDefault();
+				this.toggleNode(e.target);
+			}
 		};
 
 		this.mouseup = (_) => {
 			this.boolMouseDown = false;
+			this.boolSelecting = false;
 			this.el.style.display = "none";
 		};
 
 		this.mousemove = (e) => {
-			if (this.boolMouseDown) {
+			if ((this.boolMouseDown && Math.hypot(this.vecSelectS.x - e.pageX, this.vecSelectS.y - e.pageY) > 15) || this.boolSelecting) {
+				this.boolSelecting = true;
 				this.el.style.display = "block";
 
 				this.vecSelectE.x = e.pageX;
 				this.vecSelectE.y = e.pageY;
 
 				this.updateSelectionBox();
-				this.updateSelectedArray(activeStrip);
+				this.updateSelectedArray();
+			}
+		};
+
+		this.keyup = (e) => {
+			switch (e.key) {
+				case "Delete":
+					this.clearSelection();
+					break;
+				case "Backspace":
+					this.strip.fillColor("#000000");
+					break;
+				case "a":
+					this.clearSelection();
+					for (let i of this.strip.nodes) {
+						i.classList.add("selectedNode");
+						this.selected.push(i);
+					}
+					break;
 			}
 		};
 	}
@@ -63,36 +90,52 @@ class SelectionTool extends Tool {
 		let height = this.vecSelectE.y - this.vecSelectS.y;
 
 		this.el.style.left = `${width < 0 ? this.vecSelectE.x : this.vecSelectS.x}px`;
-
 		this.el.style.top = `${height < 0 ? this.vecSelectE.y : this.vecSelectS.y}px`;
 
 		this.el.style.width = `${Math.abs(width)}px`;
 		this.el.style.height = `${Math.abs(height)}px`;
 	}
 
+	addNode(elNode) {
+		elNode.classList.add("selectedNode");
+		if (this.selected.indexOf(elNode) == -1) {
+			let nodes = this.strip.nodes;
+			this.selected.push(elNode);
+			this.selected.sort((a, b) => nodes.indexOf(a) - nodes.indexOf(b));
+		}
+	}
+
+	removeNode(elNode) {
+		elNode.classList.remove("selectedNode");
+		let nodeIndex = this.selected.indexOf(elNode);
+		if (nodeIndex > -1) this.selected.splice(nodeIndex, 1);
+	}
+
+	toggleNode(elNode) {
+		if (elNode.classList.contains("selectedNode")) this.removeNode(elNode);
+		else this.addNode(elNode);
+	}
+
 	// returns element's corners in an object as x and y pairs
 	grabElementCorners(el) {
 		return {
+			left: el.offsetLeft + el.offsetParent.offsetLeft,
+			top: el.offsetTop + el.offsetParent.offsetTop,
+			right: el.offsetLeft + el.offsetWidth + el.offsetParent.offsetLeft,
+			bottom: el.offsetTop + el.offsetHeight + el.offsetParent.offsetTop,
+
 			tl: {
 				x: el.offsetLeft + el.offsetParent.offsetLeft,
-				y: el.offsetTop + el.offsetParent.offsetTop,
-			},
-			tr: {
-				x: el.offsetLeft + el.offsetWidth + el.offsetParent.offsetLeft,
 				y: el.offsetTop + el.offsetParent.offsetTop,
 			},
 			br: {
 				x: el.offsetLeft + el.offsetWidth + el.offsetParent.offsetLeft,
 				y: el.offsetTop + el.offsetHeight + el.offsetParent.offsetTop,
 			},
-			bl: {
-				x: el.offsetLeft + el.offsetParent.offsetLeft,
-				y: el.offsetTop + el.offsetHeight + el.offsetParent.offsetTop,
-			},
 		};
 	}
 
-	// checks for rectangle overlap between select box and node
+	// checks for rectangle overlap between selectbox and node
 	isNodeSelected(elNode) {
 		let b = this.grabElementCorners(this.el);
 		let n = this.grabElementCorners(elNode);
@@ -101,54 +144,39 @@ class SelectionTool extends Tool {
 	}
 
 	// checks strip for selected nodes
-	updateSelectedArray(strip) {
-		for (let n of this.selected) n.classList.remove("selectedNode");
+	updateSelectedArray() {
+		this.clearSelection();
 
-		let temp = [];
-		let nodes = strip.nodes;
-
-		for (let n of nodes) {
+		for (let n of this.strip.nodes) {
 			if (this.isNodeSelected(n)) {
 				n.classList.add("selectedNode");
-				temp.push(n);
+				this.selected.push(n);
 			}
 		}
-
-		this.selected = temp;
 	}
-
-	/* reminder: implement after seperating frames */
-
-	// toggleSelected(elNode) {
-	// 	if(elNode.classList.contains("nodeSelected")) {
-	// 		this.selected.splice(this.selected.indexOf(elNode));
-	// 		elNode.classList.remove("nodeSelected");
-	// 	} else {
-	// 		elNode.classList.add("nodeSelected");
-	// 		let parent = elNode.parentElement;
-	// 	}
-	// }
 
 	clearSelection() {
 		for (let n of this.selected) n.classList.remove("selectedNode");
 		this.selected = [];
 	}
 
-	setup(arrStrips) {
-		this.strips = arrStrips;
+	setup(strip) {
+		this.strip = strip;
 		document.addEventListener("mousedown", this.mousedown);
 		document.addEventListener("mouseup", this.mouseup);
 		document.addEventListener("mousemove", this.mousemove);
+		document.addEventListener("keyup", this.keyup);
 	}
 
 	resize(boolShrinking) {
-		if (boolShrinking) for (let i in this.selected) if (!document.contains(this.selected[i])) this.selected.splice(i);
+		if (boolShrinking) for (let i in this.selected) if (!document.contains(this.selected[i])) this.selected.splice(i, 1);
 	}
 
 	cleanup() {
 		document.removeEventListener("mousedown", this.mousedown);
 		document.removeEventListener("mouseup", this.mouseup);
 		document.removeEventListener("mousemove", this.mousemove);
+		document.removeEventListener("keyup", this.keyup);
 	}
 }
 
@@ -158,14 +186,13 @@ class GradientTool extends Tool {
 		this.anchors = [];
 
 		this.nodeListener = (e) => {
-			if (this.anchors.indexOf(e.target) == -1) {
-				this.anchors.push(e.target);
-				this.anchors.sort((a, b) => this.selected.indexOf(a) - this.selected.indexOf(b));
-			}
+			if (e.altKey) this.removeAnchor(e.target);
+			else if (e.ctrlKey) this.toggleAnchor(e.target);
+			else this.addAnchor(e.target);
 		};
 
 		// creates and sets gradients between all anchor nodes
-		this.updateListener = (e) => {
+		this.updateListener = (_) => {
 			let length = this.anchors.length;
 			if (length >= 2) {
 				for (let i = 1; i < length; i++) {
@@ -175,9 +202,30 @@ class GradientTool extends Tool {
 					let gradient = this.createGradient(fromHex(node1.value), fromHex(node2.value), this.selected.indexOf(node2) - baseIndex - 1);
 
 					for (let i = 0; i < gradient.length; i++) this.selected[baseIndex + i].value = toHex(gradient[i]);
+
+					this.strip.stripModified();
 				}
 			}
 		};
+	}
+
+	addAnchor(elNode) {
+		elNode.classList.add("nodeAnchor");
+		if (this.anchors.indexOf(elNode) == -1) {
+			this.anchors.push(elNode);
+			this.anchors.sort((a, b) => this.selected.indexOf(a) - this.selected.indexOf(b));
+		}
+	}
+
+	removeAnchor(elNode) {
+		elNode.classList.remove("nodeAnchor");
+		let nodeIndex = this.anchors.indexOf(elNode);
+		if (nodeIndex > -1) this.anchors.splice(nodeIndex, 1);
+	}
+
+	toggleAnchor(elNode) {
+		if (elNode.classList.contains("nodeAnchor")) this.removeAnchor(elNode);
+		else this.addAnchor(elNode);
 	}
 
 	lerp(nStart, nEnd, fPos) {
@@ -201,8 +249,8 @@ class GradientTool extends Tool {
 		return out;
 	}
 
-	setup(arrStrips) {
-		this.strips = arrStrips;
+	setup(strip) {
+		this.strip = strip;
 		this.selected = selectTool.selected;
 
 		for (let i of this.selected) {
@@ -216,11 +264,13 @@ class GradientTool extends Tool {
 			selectTool.resize(true);
 			this.selected = selectTool.selected;
 
-			for (let i in this.anchors) if (!document.contains(this.anchors[i])) this.anchors.splice(i);
+			for (let i in this.anchors) if (!document.contains(this.anchors[i])) this.anchors.splice(i, 1);
 		}
 	}
 
 	cleanup() {
+		for (let i of this.anchors) i.classList.remove("nodeAnchor");
+
 		this.anchors = [];
 
 		for (let i of this.selected) {

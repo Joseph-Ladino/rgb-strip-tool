@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 class RGBStrip {
 	constructor(elStrip, numInitialLength = 0) {
 		this.strip = elStrip;
@@ -13,16 +11,22 @@ class RGBStrip {
 	}
 
 	get nodes() {
-		return Array.from(this.strip.children);
+		return Array.from(this.strip.getElementsByClassName("node"));
 	}
 
 	get length() {
-		return this.strip.children.length;
+		return this.strip.getElementsByClassName("node").length;
 	}
 
 	get colors() {
-		let nodes = this.nodes;
-		return nodes.reduce((acc, val) => acc.concat([val.value]), []);
+		return this.nodes.reduce((acc, val) => acc.concat([val.value]), []);
+	}
+
+	stripModified() {
+		if (!this.strip.disabled) {
+			let event = new CustomEvent("stripModified", { detail: { strip: this } });
+			document.dispatchEvent(event);
+		}
 	}
 
 	toggleDisabled() {
@@ -37,24 +41,24 @@ class RGBStrip {
 	}
 
 	fillColor(arrColor) {
-		let nodes = this.nodes;
-
-		for (let node of nodes) node.value = arrColor;
+		for (let node of this.nodes) node.value = arrColor;
+		this.stripModified();
 	}
 
-	setNode(numNode, arrColor) {
-		this.nodes[numNode].value = arrColor;
+	setNode(numNode, strColor) {
+		this.nodes[numNode].value = strColor;
+		this.stripModified();
 	}
 
 	setStrip(arrColors) {
-		let nodes = this.nodes;
-
 		if (arrColors.length != this.length) {
+			console.log(arrColors, this.length);
 			console.log("lengths do not match, aborting");
 			return;
 		}
 
-		for (let i in nodes) nodes[i].value = arrColors[i];
+		for (let i in this.nodes) this.nodes[i].value = arrColors[i];
+		this.stripModified();
 	}
 
 	resize(numLength) {
@@ -67,6 +71,7 @@ class RGBStrip {
 				let node = document.createElement("input");
 				node.type = "color";
 				node.className = "node";
+				node.addEventListener("input", (_) => this.stripModified());
 				this.strip.appendChild(node);
 			} else {
 				let node = this.strip.children[this.length - 1];
@@ -82,6 +87,8 @@ class RGBStrip {
 
 			this.updateFrames(frames);
 		}
+
+		this.stripModified();
 	}
 
 	// creates a cycle of frames from one frame, e.g. RGB -> RGB, GBR, BRG
@@ -115,6 +122,14 @@ class RGBStrip {
 	stopAnimation() {
 		clearInterval(this.frameHandle);
 		this.frameIndex = 0;
+	}
+
+	pauseAnimation() {
+		clearInterval(this.frameHandle);
+	}
+
+	resumeAnimation() {
+		this.frameHandle = setInterval((_) => this.nextFrame(), this.frameDelay);
 	}
 
 	nextFrame() {
