@@ -1,4 +1,5 @@
-/* eslint-disable no-unused-vars */
+/* exported RGBStrip */
+/* global RGBStrip */
 let json, strip;
 async function loadAndInit() {
 	json = await (await fetch("../teststyle.json")).json();
@@ -8,12 +9,9 @@ async function loadAndInit() {
 function handleStyle() {
 	try {
 		let s = json[json.selected];
-		strip = new RGBStrip(
-			document.getElementsByClassName("strip")[0],
-			s.length
-		);
+		strip = new RGBStrip(document.getElementsByClassName("strip")[0], s.length);
 
-		if (s.animated) {
+		if (s.animate) {
 			strip.updateFrames(s.frames);
 			strip.frameDelay = s.frameDelay;
 			strip.startAnimation();

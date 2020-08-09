@@ -93,11 +93,9 @@ class RGBStrip {
 
 	cycleFrame(arrFrame, boolClockwise = true) {
 		let temp = Array.from(arrFrame);
-		
-		console.log(arrFrame, temp)
+
 		if (boolClockwise) temp.unshift(temp.pop());
 		else temp.push(temp.shift());
-		console.log(arrFrame, temp)
 		return Array.from(temp);
 	}
 

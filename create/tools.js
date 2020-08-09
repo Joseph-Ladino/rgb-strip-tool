@@ -21,8 +21,9 @@ class Tool {
 	setup(strip) {}
 	resize(boolShrinking) {}
 	cleanup() {}
-	switchStrip(strip) {
+	update(strip, strips) {
 		this.strip = strip;
+		this.strips = strips;
 	}
 }
 
@@ -300,9 +301,8 @@ class FillTool extends Tool {
 	}
 
 	resize(boolShrinking) {
-		if(!boolShrinking) {
-			for(let i = this.length; i < this.strip.length; i++) 
-				this.strip.nodes[i].addEventListener("input", this.nodeChange);
+		if (!boolShrinking) {
+			for (let i = this.length; i < this.strip.length; i++) this.strip.nodes[i].addEventListener("input", this.nodeChange);
 			this.length = this.strip.length;
 		}
 	}
@@ -310,6 +310,90 @@ class FillTool extends Tool {
 	cleanup() {}
 }
 
+class RearrangeTool extends Tool {
+	constructor() {
+		super();
+		// this.sourceStrip = false;
+
+		this.onDragStart = (e) => {
+			let index = Array.from(document.getElementsByClassName("strip")).indexOf(e.target);
+			// this.sourceStrip = this.strips[index];
+
+			e.dataTransfer.setData("text/plain", `${index}`);
+			e.dataTransfer.effectAllowed = "move";
+		};
+
+		this.onDragOver = (e) => {
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "move";
+		};
+
+		this.onDrop = (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+
+			let fromIndex = Number(e.dataTransfer.getData("text/plain"));
+			let toIndex = Array.from(document.getElementsByClassName("strip")).indexOf(e.target);
+
+			if (toIndex > fromIndex) {
+				toIndex += 1;
+				fromIndex += 1;
+				for (let i = fromIndex; i < toIndex; i++) {
+					let tempColors = this.strips[i].colors;
+					this.strips[i].setStrip(this.strips[i - 1].colors);
+					this.strips[i - 1].setStrip(tempColors);
+				}
+			} else {
+				toIndex -= 1;
+				fromIndex -= 1;
+				for (let i = fromIndex; i > toIndex; i--) {
+					let tempColors = this.strips[i].colors;
+					this.strips[i].setStrip(this.strips[i + 1].colors);
+					this.strips[i + 1].setStrip(tempColors);
+				}
+			}
+		};
+	}
+
+	setup(strip, strips) {
+		this.strip = strip;
+		this.strips = Array.from(strips);
+
+		for (let i of strips) {
+			i.strip.addEventListener("dragstart", this.onDragStart);
+			i.strip.addEventListener("dragover", this.onDragOver);
+			i.strip.addEventListener("drop", this.onDrop);
+			i.strip.draggable = true;
+		}
+	}
+
+	update(strip, strips) {
+		this.strip = strip;
+
+		if (this.strips.length < strips.length) {
+			for (let i = this.strips.length; i < strips.length; i++) {
+				let temp = strips[i].strip;
+				temp.addEventListener("dragstart", this.onDragStart);
+				temp.addEventListener("dragover", this.onDragOver);
+				temp.addEventListener("drop", this.onDrop);
+				temp.draggable = true;
+			}
+		}
+
+		this.strips = Array.from(strips);
+	}
+
+	cleanup() {
+		for (let i of this.strips) {
+			i.strip.removeEventListener("dragstart", this.onDragStart);
+			i.strip.removeEventListener("dragover", this.onDragOver);
+			i.strip.removeEventListener("drop", this.onDrop);
+			i.strip.draggable = false;
+		}
+	}
+}
+
 let selectTool = new SelectionTool();
 let gradientTool = new GradientTool();
 let fillTool = new FillTool();
+let rearrangeTool = new RearrangeTool();

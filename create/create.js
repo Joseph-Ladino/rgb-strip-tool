@@ -1,10 +1,10 @@
-/* globals selectTool gradientTool fillTool RGBStrip container */
-/* exported selectTool gradientTool fillTool RGBStrip container */
+/* globals selectTool gradientTool fillTool rearrangeTool RGBStrip container */
+/* exported selectTool gradientTool fillTool rearrangeTool RGBStrip container */
 
 // global vars
 var json;
 var arrStrips = [];
-var tools = [selectTool, gradientTool, fillTool];
+var tools = [selectTool, gradientTool, fillTool, rearrangeTool];
 var activeTool = selectTool;
 var activeStrip;
 var displayStrip;
@@ -18,7 +18,7 @@ const elFrameDelay = document.getElementById("frameDelay");
 function switchTool(newTool) {
 	activeTool.cleanup();
 	activeTool = newTool;
-	activeTool.setup(activeStrip);
+	activeTool.setup(activeStrip, arrStrips);
 }
 
 function constrain(numX, numMin, numMax) {
@@ -29,7 +29,30 @@ function switchActiveStrip(numIndex) {
 	activeStrip.strip.classList.remove("activeStrip");
 	activeStrip = arrStrips[numIndex];
 	activeStrip.strip.classList.add("activeStrip");
-	activeTool.switchStrip(activeStrip);
+	activeTool.update(activeStrip, arrStrips);
+}
+
+function createStrip() {
+	let tempEl = document.createElement("div");
+	let tempStrip = new RGBStrip(tempEl, elLength.value);
+	tempEl.classList.add("strip");
+	tempEl.addEventListener("mousedown", (_) => switchActiveStrip(arrStrips.indexOf(tempStrip)));
+	container.append(tempEl);
+
+	arrStrips.push(tempStrip);
+	displayStrip.frames.push(tempStrip.colors);
+	elFrameCount.value = arrStrips.length;
+	activeTool.update(activeStrip, arrStrips);
+
+	return tempStrip;
+}
+
+function duplicateStrip(strip) {
+	let index = arrStrips.indexOf(strip);
+	if (index > -1) {
+		let tempStrip = createStrip();
+		tempStrip.setStrip(strip.colors);
+	}
 }
 
 // add and remove nodes from strips
@@ -48,17 +71,7 @@ function resizeFrames(numLength) {
 	let dif = Math.abs(frameCount - arrStrips.length);
 
 	if (add) {
-		for (let i = 0; i < dif; i++) {
-			let tempEl = document.createElement("div");
-			let tempStrip = new RGBStrip(tempEl, elLength.value);
-			tempEl.classList.add("strip");
-
-			arrStrips.push(tempStrip);
-			displayStrip.frames.push(tempStrip.colors);
-			
-			tempEl.addEventListener("mousedown", _ => switchActiveStrip(arrStrips.indexOf(tempStrip)));
-			container.append(tempEl);
-		}
+		for (let i = 0; i < dif; i++) createStrip();
 	} else {
 		let startIndex = arrStrips.length - dif;
 		let tempArr = arrStrips.slice(startIndex);
@@ -69,6 +82,8 @@ function resizeFrames(numLength) {
 		displayStrip.frames.splice(startIndex, dif);
 
 		for (let i of tempArr) i.strip.parentElement.removeChild(i.strip);
+
+		activeTool.update(activeStrip, arrStrips);
 	}
 }
 
@@ -95,6 +110,12 @@ function keyupHandler(e) {
 			case "e":
 				activeStrip.setStrip(activeStrip.cycleFrame(activeStrip.colors, true));
 				break;
+			case "d":
+				duplicateStrip(activeStrip);
+				break;
+			case "r":
+				next = 3;
+				break;
 			case "=":
 				elFrameDelay.value = Number(elFrameDelay.value) + 10;
 				elFrameDelay.dispatchEvent(new Event("input"));
@@ -104,7 +125,7 @@ function keyupHandler(e) {
 				elFrameDelay.dispatchEvent(new Event("input"));
 				break;
 			case "ArrowUp":
-				resizeFrames(arrStrips.length - 1);
+				resizeFrames(Math.max(arrStrips.length - 1, 1));
 				break;
 			case "ArrowDown":
 				resizeFrames(arrStrips.length + 1);
@@ -126,19 +147,16 @@ function keyupHandler(e) {
 
 async function loadAndInit() {
 	json = await (await fetch("../teststyle.json")).json();
-
 	displayStrip = new RGBStrip(document.getElementById("displayStrip"), elLength.value);
-	arrStrips.push(new RGBStrip(document.getElementsByClassName("strip")[1], elLength.value));
+
+	activeStrip = createStrip();
+	activeStrip.strip.classList.add("activeStrip");
+	activeTool.setup(activeStrip, arrStrips);
 
 	displayStrip.toggleDisabled();
-	displayStrip.frames.push(arrStrips[0].colors);
+	displayStrip.frames.push(activeStrip.colors);
 	displayStrip.frameDelay = elFrameDelay.value;
 	displayStrip.startAnimation();
-
-	activeStrip = arrStrips[0];
-	activeStrip.strip.addEventListener("mousedown", _ => switchActiveStrip(0));
-
-	activeTool.setup(activeStrip);
 
 	elLength.addEventListener("input", (_) => resizeStrips(elLength.value));
 
