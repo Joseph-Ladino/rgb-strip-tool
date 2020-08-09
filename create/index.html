@@ -6,7 +6,9 @@
 		<link href="./style.css" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
-		<div id="selectBox" style="display: none;"></div>
+		<div id="selectBox" class="hidden"></div>
+		<input id="loadStrip" class="hidden" type="file" accept=".strip, text/json" />
+		<a id="exportStrip" class="hidden" ></a>
 		<div id="controlPanel" class="noselect">
 			<input id="stripLength" class="number3ch" type="number" min="1" max="148" value="5" />
 			<label for="stripLength">node(s)</label>
@@ -14,6 +16,9 @@
 			<label for="frameCount">frame(s)</label>
 			<input id="frameDelay" class="number3ch" type="number" value="100" min="1" />
 			<label for="frameDelay">millisecond(s)</label>
+			
+			<input id="loadStripButton" class="button" type="button" value="Import Strip" />
+			<input id="exportStripButton" class="button" type="button" value="Export Strip" />
 
 			<br />
 

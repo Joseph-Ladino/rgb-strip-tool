@@ -11,14 +11,10 @@ function handleStyle() {
 		let s = json[json.selected];
 		strip = new RGBStrip(document.getElementsByClassName("strip")[0], s.length);
 
-		if (s.animate) {
-			strip.updateFrames(s.frames);
-			strip.frameDelay = s.frameDelay;
-			strip.startAnimation();
-		} else {
-			if (s.fill) strip.fillColor(s.colors[0]);
-			else strip.setStrip(s.colors);
-		}
+		strip.updateFrames(s.frames);
+		strip.frameDelay = s.frameDelay;
+		strip.startAnimation();
+		
 	} catch (e) {
 		console.log(e);
 	}

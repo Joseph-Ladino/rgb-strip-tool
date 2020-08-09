@@ -79,7 +79,7 @@ class RGBStrip {
 			}
 		}
 
-		if (this.animated && curLength != numLength) {
+		if (curLength != numLength) {
 			let temp = new Array(dif).fill("#000000");
 			let frames = this.frames;
 
@@ -101,8 +101,6 @@ class RGBStrip {
 
 	// creates a cycle of frames from one frame, e.g. RGB -> RGB, GBR, BRG
 	lazyAnimate(arrFrame, numDelay) {
-		this.animated = true;
-
 		let frames = [];
 		let length = arrFrame.length;
 		let temp = Array.from(arrFrame);
@@ -149,10 +147,8 @@ class RGBStrip {
 	toJSON() {
 		let tempObj = {
 			length: this.length,
-			colors: this.colors,
-			animate: this.animated,
 			frames: this.frames,
-			frameDelay: this.frameDelay,
+			frameDelay: this.frameDelay
 		};
 
 		return JSON.stringify(tempObj, false, 4);

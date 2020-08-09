@@ -8,6 +8,10 @@ hr {
 	margin-bottom: 0;
 }
 
+.hidden {
+	display: none;
+}
+
 #controlPanel {
 	padding: 1em;
 }
@@ -15,6 +19,11 @@ hr {
 .number3ch {
 	width: 3ch;
 	text-align: center;
+}
+
+.button {
+	width: fit-content;
+	cursor: pointer;
 }
 
 #stripsContainer {

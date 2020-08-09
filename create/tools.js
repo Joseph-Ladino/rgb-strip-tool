@@ -313,12 +313,9 @@ class FillTool extends Tool {
 class RearrangeTool extends Tool {
 	constructor() {
 		super();
-		// this.sourceStrip = false;
 
 		this.onDragStart = (e) => {
 			let index = Array.from(document.getElementsByClassName("strip")).indexOf(e.target);
-			// this.sourceStrip = this.strips[index];
-
 			e.dataTransfer.setData("text/plain", `${index}`);
 			e.dataTransfer.effectAllowed = "move";
 		};

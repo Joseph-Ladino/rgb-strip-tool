@@ -12,8 +12,10 @@ var displayStrip;
 // global elements
 const elLength = document.getElementById("stripLength");
 const elLengthNum = document.getElementById("stripLengthNum");
+const elLoadStrip = document.getElementById("loadStrip");
 const elFrameCount = document.getElementById("frameCount");
 const elFrameDelay = document.getElementById("frameDelay");
+const elExportStrip = document.getElementById("exportStrip");
 
 function switchTool(newTool) {
 	activeTool.cleanup();
@@ -145,6 +147,22 @@ function keyupHandler(e) {
 	}
 }
 
+function loadStrip(strJson) {
+	let obj = JSON.parse(strJson);
+	let { length, frames, frameDelay } = obj;
+
+	resizeStrips(length);
+
+	resizeFrames(frames.length);
+	for (let i in frames) {
+		if (frames[i].length == length) arrStrips[i].setStrip(frames[i]);
+		else console.log("ignoring frame", i);
+	}
+
+	elFrameDelay.value = frameDelay;
+	elFrameDelay.dispatchEvent(new Event("input"));
+}
+
 async function loadAndInit() {
 	json = await (await fetch("../teststyle.json")).json();
 	displayStrip = new RGBStrip(document.getElementById("displayStrip"), elLength.value);
@@ -154,7 +172,6 @@ async function loadAndInit() {
 	activeTool.setup(activeStrip, arrStrips);
 
 	displayStrip.toggleDisabled();
-	displayStrip.frames.push(activeStrip.colors);
 	displayStrip.frameDelay = elFrameDelay.value;
 	displayStrip.startAnimation();
 
@@ -188,6 +205,28 @@ async function loadAndInit() {
 		let index = arrStrips.indexOf(strip);
 
 		if (index > -1) displayStrip.frames[index] = strip.colors;
+	});
+
+	document.getElementById("loadStrip").addEventListener("change", (_) => {
+		let file = elLoadStrip.files[0];
+		let fr = new FileReader();
+		if (file) {
+			fr.addEventListener("load", (_) => {
+				loadStrip(fr.result);
+			});
+
+			fr.addEventListener("error", console.log);
+
+			fr.readAsText(file);
+		}
+	});
+
+	document.getElementById("loadStripButton").addEventListener("mousedown", (_) => elLoadStrip.click());
+
+	document.getElementById("exportStripButton").addEventListener("mousedown", (_) => {
+		elExportStrip.download = "rgb.strip";
+		elExportStrip.href = `data:text/plain;charset=utf-8,${encodeURIComponent(displayStrip.toJSON())}`;
+		elExportStrip.click();
 	});
 }
 
