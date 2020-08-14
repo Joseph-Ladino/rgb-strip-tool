@@ -11,7 +11,6 @@ var displayStrip;
 
 // global elements
 const elLength = document.getElementById("stripLength");
-const elLengthNum = document.getElementById("stripLengthNum");
 const elLoadStrip = document.getElementById("loadStrip");
 const elFrameCount = document.getElementById("frameCount");
 const elFrameDelay = document.getElementById("frameDelay");
@@ -54,6 +53,19 @@ function duplicateStrip(strip) {
 	if (index > -1) {
 		let tempStrip = createStrip();
 		tempStrip.setStrip(strip.colors);
+	}
+}
+
+function lazyAnimate(clockwise = true) {
+	let temp = Array.from(arrStrips[0].colors);
+	let length = elLength.value;
+	resizeFrames(length);
+
+	for (let i of arrStrips) {
+		i.setStrip(temp);
+
+		if (clockwise) temp.unshift(temp.pop());
+		else temp.push(temp.shift());
 	}
 }
 
@@ -117,6 +129,9 @@ function keyupHandler(e) {
 				break;
 			case "r":
 				next = 3;
+				break;
+			case "l":
+				lazyAnimate(!e.altKey);
 				break;
 			case "=":
 				elFrameDelay.value = Number(elFrameDelay.value) + 10;

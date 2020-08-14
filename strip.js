@@ -148,7 +148,8 @@ class RGBStrip {
 		let tempObj = {
 			length: this.length,
 			frames: this.frames,
-			frameDelay: this.frameDelay
+			frameDelay: this.frameDelay,
+			frameCount: this.frames.length,
 		};
 
 		return JSON.stringify(tempObj, false, 4);

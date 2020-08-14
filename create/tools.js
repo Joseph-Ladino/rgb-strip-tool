@@ -307,7 +307,9 @@ class FillTool extends Tool {
 		}
 	}
 
-	cleanup() {}
+	cleanup() {
+		for (let i of this.strip.nodes) i.removeEventListener("input", this.nodeChange);
+	}
 }
 
 class RearrangeTool extends Tool {
